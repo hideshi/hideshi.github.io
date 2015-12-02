@@ -22,7 +22,7 @@ ErlangとElixirはescriptというクールなツールを持っている。こ�
 もしこの話題についていきたいのであれば、[このリポジトリ](https://github.com/fteem/eight_ball)にあるソースを見ておくといいだろう。
 **mix.exs**に追加する。
 
-```ex
+{% codehighlight elixir %}
 defmodule EightBall.Mixfile do
   use Mix.Project
 
@@ -38,36 +38,36 @@ defmodule EightBall.Mixfile do
   end
   # ...
 end
-```
+{% endcodehighlight %}
 
 追加した行は**escript**に**EightBall.CLI**に**main/1**関数があることを知らせるものだ。**main/1**関数はコマンドラインアプリケーションのエントリーポイントとなる。
 
 # **EightBall.CLI**
 **EightBall.CLI**モジュールがまだないので、まずはそれを作るところから始めよう。
 
-```ex
+{% codehighlight elixir %}
 defmodule EightBall.CLI do
   def main(args) do
   end
 end
-```
+{% endcodehighlight %}
 
 見ての通りこのモジュールはコマンドライン引数を取る**main/1**関数を持っている。コマンドライン引数を扱いやすくするために[**OptionParser**](http://elixir-lang.org/docs/v1.0/elixir/OptionParser.html)を使う必要がある。
 アプリケーションを実行する際のシンタックスはこんな感じか
 
-```bash
+{% codehighlight bash %}
 eight_ball --question "Is Elixir great?"
-```
+{% endcodehighlight %}
 
 こんな感じにしたい。
 
-```bash
+{% codehighlight bash %}
 eight_ball -q "Is Elixir great?"
-```
+{% endcodehighlight %}
 
 では**OptionParser**を使って**-q/--question**引数をオプションとして定義してみよう。
 
-```ex
+{% codehighlight elixir %}
 defmodule EightBall.CLI do
   def main(argv) do
     {options, _, _} = OptionParser.parse(argv, 
@@ -77,43 +77,43 @@ defmodule EightBall.CLI do
     IO.inspect options
   end
 end
-```
+{% endcodehighlight %}
 
 **main/1**関数は引数をパースし意味あるタグ付けされたリストを生成する。この段階では**main/1**関数はパースされた引数を表示するだけとなっている。後ほど意味のある処理を追加していこうと思う。
 まずは実行可能はescriptを作ってみよう。作り方はプロジェクトのルートディレクトリに移動して以下のコマンドを実行する。
 
-```bash
+{% codehighlight bash %}
 mix escript.build
-```
+{% endcodehighlight %}
 
 これはElixirアプリケーションをコンパイルし実行可能なescriptを生成する。
 
-```bash
+{% codehighlight bash %}
 ➜  eight_ball git:(master) ✗ mix escript.build
 Compiled lib/eight_ball/cli.ex
 Generated eight_ball app
 Generated escript eight_ball with MIX_ENV=dev
-```
+{% endcodehighlight %}
 
 **eight_ball**プロジェクトのルートディレクトリを見ると、eight_ballという実行可能なファイルが出来上がっていることがわかるだろう。これを使うには以下のように入力する。
 
-```bash
+{% codehighlight bash %}
 ./eight_ball --question "Is Elixir great?"
-```
+{% endcodehighlight %}
 
 そうすると以下のように表示されると思う。
 
-```bash
+{% codehighlight bash %}
 ➜  eight_ball git:(master) ✗ ./eight_ball -q "Is Elixir great?"
 [question: "Is Elixir great?"]
-```
+{% endcodehighlight %}
 
 ほらみて！パースされたコマンドライン引数が見えるでしょ！
 
 # **アプリケーションを統合する**
 では**EightBall.ask/1**をコマンドラインアプリケーションで使ってみよう。**EightBall::CLI.main/1**に以下のコードを追加してみよう。
 
-```ex
+{% codehighlight elixir %}
 defmodule EightBall.CLI do
   def main(opts) do
     {options, _, _} = OptionParser.parse(opts, 
@@ -129,46 +129,46 @@ defmodule EightBall.CLI do
     end
   end
 end
-```
+{% endcodehighlight %}
 
 try/rescueブロックの中で質問文を**ask/1**関数に送信し、RuntimeErrorをキャッチする。このエラーは**EightBall::QuestionValidator**という入力値チェック機能によって引き起こされる。もし質問文が疑問形でない場合にこのようなエラーを投げる。
 
-```bash
+{% codehighlight bash %}
 "Question must be a string, ending with a question mark."
-```
+{% endcodehighlight %}
 
 もしコマンドラインアプリケーションがエラーをキャッチした場合はエラーメッセージを表示する。
 
 # コマンドラインアプリケーションをビルドする
 最後のステップはescriptを実行することだ。Elixirでは**mix**を使うことで**escript**を実行することはとても簡単である。
 
-```bash
+{% codehighlight bash %}
 mix escript.build
-```
+{% endcodehighlight %}
 
 もし手順に誤りがなければ以下のように表示されるだろう。
 
-```bash
+{% codehighlight bash %}
 ➜  eight_ball git:(master) ✗ mix escript.build
 Compiled lib/eight_ball.ex
 Generated eight_ball app
 Generated escript eight_ball with MIX_ENV=dev
-```
+{% endcodehighlight %}
 
 これはメインモジュールと同名のコマンドラインアプリケーションを生成する。この場合は**eight_ball**のようになる。もし実行可能ファイルをテキストエディタなどで開くと、読むことが困難なたくさんのコードを目にするだろう。これはErlangVMのバイトコードに変換されたという証拠である。
 素晴らしいことはこれをErlangのインストールされたマシンに送り使用することができる。Elixirはアプリケーションに埋め込まれているので、唯一の依存性はErlangだけである。クールでしょ？
 
 アプリケーションは以下のようにして実行する。
 
-```bash
+{% codehighlight bash %}
 ➜  eight_ball git:(master) ✗ ./eight_ball --question "Is Elixir awesome?"
 Outlook good
-```
+{% endcodehighlight %}
 
 もしくはこのように。
 
-```bash
+{% codehighlight bash %}
 ➜  eight_ball git:(master) ✗ ./eight_ball --question "Is Elixir awesome"
 Question must be a string, ending with a question mark.
-```
+{% endcodehighlight %}
 
