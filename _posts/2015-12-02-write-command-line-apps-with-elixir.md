@@ -22,7 +22,7 @@ ErlangとElixirはescriptというクールなツールを持っている。こ�
 もしこの話題についていきたいのであれば、[このリポジトリ](https://github.com/fteem/eight_ball)にあるソースを見ておくといいだろう。
 **mix.exs**に追加する。
 
-```ex:mix.exs
+```ex
 defmodule EightBall.Mixfile do
   use Mix.Project
 
